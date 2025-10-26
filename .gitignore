@@ -3,6 +3,10 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+# DRONE_IMAGE_SEGMENTATION
+data/raw/binary_dataset
+data/raw/classes_dataset
+
 # C extensions
 *.so
 
