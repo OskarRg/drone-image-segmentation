@@ -1,0 +1,8 @@
+[tool.ruff]
+line-length = 100
+fix = true
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "ANN", "TCH", "TID",
+#"D",  docstrings are turned off for now.
+]
