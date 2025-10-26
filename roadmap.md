@@ -16,10 +16,10 @@ This project plan is divided into some kind of Epics, Features, and Tasks way of
   - [x] **Task:** Download and unpack the data from Kaggle into `data/raw/`.
 
 ### Epic: Exploratory Data Analysis (EDA)
-- [ ] **Feature:** Analyze the dataset
-  - [ ] **Task:** Create the `01_data_exploration.ipynb` notebook.
-  - [ ] **Task:** Class analysis: identify classes (e.g., "building", "vegetation"), count them, check pixel distribution per class (is the dataset balanced?).
-  - [ ] **Task:** Visualize sample pairs (image + mask) to understand the annotations.
+- [x] **Feature:** Analyze the dataset
+  - [x] **Task:** Create the `01_data_exploration.ipynb` notebook.
+  - [x] **Task:** Class analysis: identify classes (e.g., "obstacles", "water"), count them, check pixel distribution per class (is the dataset balanced?).
+  - [x] **Task:** Visualize sample pairs (image + mask) to understand the annotations.
 
 ---
 
