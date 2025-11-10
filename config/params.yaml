@@ -1,0 +1,7 @@
+preprocessing:
+  color_map:
+    - { color: [155, 38, 182], id: 0, name: "obstacles" }
+    - { color: [14, 135, 204], id: 1, name: "water" }
+    - { color: [124, 252, 0], id: 2, name: "soft-surfaces" }
+    - { color: [255, 20, 147], id: 3, name: "moving-objects" }
+    - { color: [169, 169, 169], id: 4, name: "landing-zones" }

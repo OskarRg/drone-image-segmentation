@@ -9,14 +9,18 @@ feature extraction, training, evaluation).
 import argparse
 import logging
 import sys
+from pathlib import Path
 
-from source.config import ConfigParser, PipelineArguments
+from source.arguments_schema import PipelineParams
+from source.config import ConfigParser
+from source.data_loader import DataLoader
+from source.exit_codes import ExitCode
 from source.logging_config import setup_logging
 
 logger: logging.Logger = logging.getLogger(__name__)
 
 
-def run_pipeline(args: argparse.Namespace, params: PipelineArguments) -> None:
+def run_pipeline(args: argparse.Namespace, params: PipelineParams) -> None:
     """
     Main pipeline orchestration function.
 
@@ -27,12 +31,38 @@ def run_pipeline(args: argparse.Namespace, params: PipelineArguments) -> None:
     """
     logger.info(f"Starting pipeline in mode: {args.mode}")
     logger.info(f"Using parameters from: {args.params}")
-    logger.info(f"Data path: {args.data_path}")
+    logger.debug(f"Parameters: {args}")
+    logger.debug(f"Data path: {args.data_path}")
     logger.debug("Verbose logging enabled.")
 
-    logger.info(f"Model config: {params.get('model', 'Not specified')}")
+    train_path: Path = Path(args.data_path) / "train"
+    val_path: Path = Path(args.data_path) / "val"
 
-    logger.warning("Step 1: Data loading (NOT IMPLEMENTED)")
+    try:
+        train_loader: DataLoader = DataLoader(data_path=train_path, params=params)
+        X_train, y_train = train_loader.load_data()
+        logger.debug(f"Successfully loaded {len(X_train)} training pairs.")
+
+    except FileNotFoundError:
+        logger.error(f"Training data not found at {train_path}.")
+        logger.error("Did you run `scripts/prepare_dataset.py` first?")
+        sys.exit(ExitCode.TRAINING_DATA_NOT_FOUND)
+    except Exception as e:
+        logger.error(f"Failed during training data loading: {e}", exc_info=True)
+        sys.exit(ExitCode.GENERAL_ERROR)
+    try:
+        val_loader = DataLoader(data_path=val_path, params=params)
+        X_val, y_val = val_loader.load_data()
+        logger.debug(f"Successfully loaded {len(X_val)} validation pairs.")
+
+    except FileNotFoundError:
+        logger.error(f"Validation data not found at {val_path}.")
+        logger.error("Did you run 'scripts/prepare_dataset.py' first?")
+        sys.exit(ExitCode.VALIDATION_DATA_NOT_FOUND)
+    except Exception as e:
+        logger.error(f"Failed during validation data loading: {e}", exc_info=True)
+        sys.exit(ExitCode.GENERAL_ERROR)
+
     logger.warning("Step 2: Feature extraction (NOT IMPLEMENTED)")
 
     if args.mode in ["full", "train"]:
@@ -55,7 +85,7 @@ def main() -> None:
     try:
         config_parser: ConfigParser = ConfigParser()
         args: argparse.Namespace
-        params: PipelineArguments
+        params: PipelineParams
         args, params = config_parser.parse_config()
 
         if args.verbose:
@@ -66,10 +96,10 @@ def main() -> None:
 
     except FileNotFoundError as e:
         logger.error(f"Exiting. Config file not found: {e}", exc_info=False)
-        sys.exit(1)
+        sys.exit(ExitCode.CONFIG_FILE_NOT_FOUND)
     except Exception as e:
         logger.error(f"Pipeline failed with a critical error: {e}", exc_info=True)
-        sys.exit(1)
+        sys.exit(ExitCode.GENERAL_ERROR)
 
 
 if __name__ == "__main__":
