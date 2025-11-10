@@ -28,10 +28,9 @@ This project plan is divided into some kind of Epics, Features, and Tasks way of
 *Goal: Transform raw images into a set of features that a machine learning model can understand.*
 
 ### Epic: Data Preprocessing
-- [ ] **Feature:** Create a data loading pipeline
-  - [ ] **Task:** Implement functions in `source/data_loader.py` to load images and masks.
-  - [ ] **Task:** Implement functions in `source/preprocessing.py` to resize images to a uniform size (if necessary) and normalize pixel values.
-  - [ ] **Task:** Create a script to split the data into `train`, `val`, `test` sets and save them in `data/processed/`.
+- [x] **Feature:** Create a data loading pipeline
+  - [x] **Task:** Implement functions in `source/data_loader.py` to load images and masks.
+  - [x] **Task:** Create a script to split the data into `train`, `val`, `test` sets and save them in `data/processed/`.
 
 ### Epic: Feature Engineering
 - [ ] **Feature:** Implement feature extractors in `source/feature_extractor.py`

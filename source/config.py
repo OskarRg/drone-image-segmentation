@@ -1,26 +1,38 @@
+"""
+Handles argument parsing and loading the pipeline parameters file.
+
+This class encapsulates all logic related to defining, parsing,
+and using command-line arguments to load the correct params.yaml.
+It also validates the loaded params.yaml against the Pydantic schema.
+"""
+
 import argparse
 import logging
 import os
-from typing import Any
+import sys
+from pathlib import Path
 
 import yaml
+from pydantic import ValidationError
+
+from source.arguments_schema import PipelineParams
+from source.exit_codes import ExitCode
 
 logger: logging.Logger = logging.getLogger(__name__)
 
-PipelineArguments = dict[str, Any]
+DATA_PATH: Path = Path("data/raw/")
+BINARY_DATASET_PATH: str = DATA_PATH / "binary_dataset"
+CLASSES_DATASET_PATH: str = DATA_PATH / "classes_dataset"
 
 
 class ConfigParser:
     """
     Handles argument parsing and loading the pipeline parameters file.
-
-    This class encapsulates all logic related to defining, parsing,
-    and using command-line arguments to load the correct params.yaml.
     """
 
     def __init__(self) -> None:
         """
-        Initializes the ArgumentParser and defines all expected arguments.
+        Initializes the `ArgumentParser` and defines all expected arguments.
         """
         self.parser: argparse.ArgumentParser = argparse.ArgumentParser(
             description="Main pipeline for drone image terrain segmentation."
@@ -55,15 +67,14 @@ class ConfigParser:
             help="Enable verbose logging (sets level to DEBUG).",
         )
 
-    def _load_params(self, params_path: str) -> PipelineArguments:
+    def _load_params(self, params_path: str) -> PipelineParams:
         """
-        Private helper to load the params.yaml file.
+        Private helper to load the params.yaml file and validate it.
 
         :param params_path: Path to the YAML parameters file.
-        :type params_path: str
         :raises FileNotFoundError: If the config file does not exist.
-        :return: A dictionary with the loaded parameters.
-        :rtype: dict
+        :raises ValidationError: If the config file is invalid.
+        :return: A validated Pydantic object with the loaded parameters.
         """
         if not os.path.exists(params_path):
             logger.error(f"Parameters file not found at: {params_path}")
@@ -71,23 +82,33 @@ class ConfigParser:
 
         try:
             with open(params_path, "r") as f:
-                params: PipelineArguments = yaml.safe_load(f)
-            logger.info(f"Successfully loaded parameters from {params_path}")
-            return params if params is not None else {}
+                params_dict: PipelineParams = yaml.safe_load(f)
+                if params_dict is None:
+                    params_dict = {}
+            params_obj: PipelineParams = PipelineParams(**params_dict)
+
+            logger.info(f"Successfully loaded and validated parameters from {params_path}")
+            return params_obj
+
+        except ValidationError as e:
+            logger.error("--- Invalid 'params.yaml' configuration! ---")
+            logger.error(f"File: {params_path}")
+            logger.error(f"{e}")
+            sys.exit(ExitCode.CONFIG_VALIDATION_ERROR)
+
         except Exception as e:
-            logger.error(f"Failed to read/parse params file: {e}", exc_info=True)
+            logger.error(f"Failed to read and parse params file: {e}", exc_info=True)
             raise e
 
-    def parse_config(self) -> tuple[argparse.Namespace, PipelineArguments]:
+    def parse_config(self) -> tuple[argparse.Namespace, PipelineParams]:
         """
         Public method to parse arguments and load the parameters file.
 
         :return: A tuple containing:
                  1. The parsed arguments (Namespace).
-                 2. The loaded parameters dictionary (dict).
-        :rtype: tuple[argparse.Namespace, dict[str, Any]]
+                 2. The loaded and validated parameters (Pydantic object).
         """
         args: argparse.Namespace = self.parser.parse_args()
-        params: PipelineArguments = self._load_params(args.params)
+        params: PipelineParams = self._load_params(args.params)
 
         return args, params
