@@ -1,3 +1,23 @@
+artifacts:
+  output_dir: "features"
+  x_train_path: "features/X_train_scaled.npy"
+  y_train_path: "features/y_train_flat.npy"
+  x_val_path: "features/X_val_scaled.npy"
+  y_val_path: "features/y_val_flat.npy"
+  scaler_path: "features/scaler.pkl"
+
+features:
+  base_rgb: true
+  color_space:
+    hsv: true
+    lab: true
+  texture_lbp:
+    enabled: true
+    radius: 3
+    n_points: 24
+  edge_sobel:
+    enabled: true
+
 preprocessing:
   color_map:
     - { color: [155, 38, 182], id: 0, name: "obstacles" }
