@@ -14,7 +14,7 @@ import numpy as np
 from numpy.typing import NDArray
 from tqdm import tqdm
 
-from source.arguments_schema import ColorMapItem, PipelineParams
+from source.arguments_schema import ColorMapItem, PreprocessingParams
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ class DataLoader:
     Handles loading and preprocessing of the segmentation dataset.
     """
 
-    def __init__(self, data_path: str, params: PipelineParams) -> None:
+    def __init__(self, data_path: str, params: PreprocessingParams) -> None:
         """
         Initializes the DataLoader.
 
@@ -36,9 +36,9 @@ class DataLoader:
         """
         logger.info(f"Initializing DataLoader with data_path: {data_path}")
 
-        self.params: PipelineParams = params
+        self.preprocessing_params: PreprocessingParams = params
 
-        color_map_config: list[ColorMapItem] = params.preprocessing.color_map
+        color_map_config: list[ColorMapItem] = params.color_map
 
         self.colors_rgb: NDArray[np.uint8] = np.array(
             [item.color for item in color_map_config], dtype=np.uint8

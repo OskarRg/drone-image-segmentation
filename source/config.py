@@ -53,6 +53,20 @@ class ConfigParser:
         )
 
         self.parser.add_argument(
+            "--load-features",
+            action="store_true",
+            default=False,
+            help="Enable loading extracted train and validation features from a .npy files.",
+        )
+
+        self.parser.add_argument(
+            "--save-features",
+            action="store_true",
+            default=False,
+            help="Enable saving the extracted train and validation features as a .npy files.",
+        )
+
+        self.parser.add_argument(
             "--mode",
             type=str,
             default="full",
